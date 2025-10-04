@@ -1,0 +1,24 @@
+# Logs and temporary analysis outputs
+logs/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+ENV/
+env.bak/
+venv/
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage*
+
+# Editor settings
+.vscode/
+.idea/
+.DS_Store

@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash scripts/entrypoint.sh
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    ports:
+      - "18001:8000"
+    env_file:
+      - env/.env.development
+    environment:
+      DJANGO_LOG_DIR: /app/logs
+      DATABASE_URL: postgres://app:app@db:5432/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  devtools:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash scripts/run_checks.sh
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    env_file:
+      - env/.env.development
+    environment:
+      DJANGO_LOG_DIR: /app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
